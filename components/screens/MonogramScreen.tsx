@@ -2,15 +2,16 @@
 
 import { useState } from "react";
 
+// Real Minky Couture color names
 const colors = [
-  { name: "Midnight Champagne", hex: "#1a1f2e" },
-  { name: "Dusty Rose", hex: "#e4b2a0" },
-  { name: "Cream Velvet", hex: "#f0ebe3" },
-  { name: "Velvet Noir", hex: "#2a1f2e" },
-  { name: "Desert Gold", hex: "#c4943a" },
-  { name: "Sage Mist", hex: "#8fa898" },
-  { name: "Navy Classic", hex: "#1e232d" },
-  { name: "Blush Pearl", hex: "#d4a0a0" },
+  { name: "Cream", hex: "#f0ebe3" },
+  { name: "Oatmeal", hex: "#d4c5a9" },
+  { name: "Mist", hex: "#b8c4cc" },
+  { name: "Alaskan Blue", hex: "#7a9bb5" },
+  { name: "Copper", hex: "#b87333" },
+  { name: "Petal Pink", hex: "#e4b2a0" },
+  { name: "Night Sky", hex: "#2e3547" },
+  { name: "Black", hex: "#1a1a1a" },
 ];
 
 const fonts = ["Classic Serif", "Modern Script", "Bold Block", "Elegant Italic"];
@@ -28,35 +29,33 @@ export default function MonogramScreen() {
   const [selectedFont, setSelectedFont] = useState(0);
   const [selectedThread, setSelectedThread] = useState(0);
   const [monogramText, setMonogramText] = useState("ELJ");
+  const [editMode, setEditMode] = useState(false);
+  const [editLetters, setEditLetters] = useState(["E", "L", "J"]);
+  const [addedToOrder, setAddedToOrder] = useState(false);
 
   const blanketColor = colors[selectedColor].hex;
   const threadColor = threadColors[selectedThread].hex;
+  const isLight = ["#f0ebe3", "#d4c5a9", "#e4b2a0", "#b8c4cc"].includes(blanketColor);
 
-  // Determine if blanket is light or dark for text contrast
-  const isLight = ["#f0ebe3", "#c4943a", "#e4b2a0", "#8fa898", "#d4a0a0"].includes(blanketColor);
+  const handleSaveEdit = () => {
+    setMonogramText(editLetters.join(""));
+    setEditMode(false);
+  };
+
+  const handleAddToOrder = () => {
+    setAddedToOrder(true);
+    setTimeout(() => setAddedToOrder(false), 1500);
+  };
 
   return (
-    <div
-      className="w-full pb-24 screen-enter"
-      style={{ background: "#f8f5f0", minHeight: "100%" }}
-    >
+    <div className="w-full pb-24 screen-enter" style={{ background: "#f8f5f0", minHeight: "100%" }}>
       {/* Header */}
       <div className="px-5 pt-4 pb-3">
         <p className="text-[11px] tracking-[0.25em] uppercase mb-1" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
           App Exclusive
         </p>
-        <h2
-          style={{
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-            fontSize: 30,
-            fontWeight: 600,
-            color: "#1e232d",
-            lineHeight: 1.1,
-          }}
-        >
-          Monogram
-          <br />
-          Studio
+        <h2 style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 30, fontWeight: 600, color: "#1e232d", lineHeight: 1.1 }}>
+          Monogram<br />Studio
         </h2>
       </div>
 
@@ -64,21 +63,12 @@ export default function MonogramScreen() {
       <div className="mx-5 mb-5">
         <div
           className="rounded-3xl w-full relative overflow-hidden flex items-center justify-center"
-          style={{
-            height: 200,
-            background: blanketColor,
-            boxShadow: "0 8px 24px rgba(30,35,45,0.15)",
-            transition: "background 0.4s ease",
-          }}
+          style={{ height: 200, background: blanketColor, boxShadow: "0 8px 24px rgba(30,35,45,0.15)", transition: "background 0.4s ease" }}
         >
-          {/* Texture lines */}
           <div
             className="absolute inset-0 opacity-20"
-            style={{
-              backgroundImage: `repeating-linear-gradient(90deg, ${isLight ? "#00000015" : "#ffffff15"} 0px, ${isLight ? "#00000015" : "#ffffff15"} 1px, transparent 1px, transparent 8px)`,
-            }}
+            style={{ backgroundImage: `repeating-linear-gradient(90deg, ${isLight ? "#00000015" : "#ffffff15"} 0px, ${isLight ? "#00000015" : "#ffffff15"} 1px, transparent 1px, transparent 8px)` }}
           />
-          {/* Monogram */}
           <div className="flex flex-col items-center gap-1 relative z-10">
             <p
               style={{
@@ -95,70 +85,50 @@ export default function MonogramScreen() {
             >
               {monogramText || "MC"}
             </p>
-            <div
-              className="h-px w-16 mt-1"
-              style={{
-                background: `linear-gradient(90deg, transparent, ${threadColor}, transparent)`,
-                transition: "background 0.3s",
-              }}
-            />
-            <p
-              className="text-[9px] tracking-[0.3em] uppercase"
-              style={{ color: `${threadColor}80`, fontFamily: "Inter, sans-serif" }}
-            >
+            <div className="h-px w-16 mt-1" style={{ background: `linear-gradient(90deg, transparent, ${threadColor}, transparent)`, transition: "background 0.3s" }} />
+            <p className="text-[9px] tracking-[0.3em] uppercase" style={{ color: `${threadColor}80`, fontFamily: "Inter, sans-serif" }}>
               Minky Couture
             </p>
           </div>
-
-          {/* App exclusive badge */}
-          <div
-            className="absolute top-3 right-3 px-2.5 py-1 rounded-full"
-            style={{
-              background: "rgba(30,35,45,0.5)",
-              backdropFilter: "blur(4px)",
-            }}
-          >
-            <span className="text-[9px] tracking-widest uppercase" style={{ color: "#e3c088", fontFamily: "Inter, sans-serif" }}>
-              App Only
-            </span>
+          <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full" style={{ background: "rgba(30,35,45,0.5)", backdropFilter: "blur(4px)" }}>
+            <span className="text-[9px] tracking-widest uppercase" style={{ color: "#e3c088", fontFamily: "Inter, sans-serif" }}>App Only</span>
           </div>
         </div>
       </div>
 
       {/* Monogram text */}
       <div className="mx-5 mb-4">
-        <label
-          className="text-[11px] tracking-[0.2em] uppercase block mb-2"
-          style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}
-        >
+        <label className="text-[11px] tracking-[0.2em] uppercase block mb-2" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
           Your Initials
         </label>
         <div className="flex gap-2">
-          {["E", "L", "J"].map((letter, i) => (
+          {monogramText.split("").map((letter, i) => (
             <div
               key={i}
-              className="w-14 h-14 rounded-xl flex items-center justify-center text-xl font-semibold cursor-pointer"
+              className="w-14 h-14 rounded-xl flex items-center justify-center"
               style={{
                 background: "#fff",
                 border: "1.5px solid rgba(150,121,82,0.4)",
                 color: "#1e232d",
                 fontFamily: "Cormorant Garamond, Georgia, serif",
                 fontSize: 22,
+                fontWeight: 600,
               }}
             >
               {letter}
             </div>
           ))}
-          <div
-            className="flex-1 h-14 rounded-xl flex items-center justify-center text-[12px]"
+          <button
+            onClick={() => setEditMode(true)}
+            className="flex-1 h-14 rounded-xl flex items-center justify-center text-[12px] font-medium transition-all active:scale-95"
             style={{ background: "rgba(150,121,82,0.08)", border: "1.5px dashed rgba(150,121,82,0.3)", color: "#967952" }}
           >
             Edit
-          </div>
+          </button>
         </div>
       </div>
 
-      {/* Blanket color */}
+      {/* Blanket color — REAL Minky colors */}
       <div className="mx-5 mb-4">
         <div className="flex items-center justify-between mb-2">
           <label className="text-[11px] tracking-[0.2em] uppercase" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
@@ -244,11 +214,9 @@ export default function MonogramScreen() {
       {/* CTA */}
       <div className="mx-5">
         <button
+          onClick={handleAddToOrder}
           className="w-full py-4 rounded-2xl text-[13px] font-semibold tracking-widest uppercase transition-all active:scale-98"
-          style={{
-            background: "linear-gradient(135deg, #967952, #e3c088)",
-            color: "#1e232d",
-          }}
+          style={{ background: "linear-gradient(135deg, #967952, #e3c088)", color: "#1e232d" }}
         >
           Add to Order — $189
         </button>
@@ -256,6 +224,75 @@ export default function MonogramScreen() {
           App-exclusive embroidery · Ships in 5–7 days
         </p>
       </div>
+
+      {/* Edit initials overlay */}
+      {editMode && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(30,35,45,0.6)" }}>
+          <div className="rounded-3xl px-6 py-5 screen-enter" style={{ background: "#fff", boxShadow: "0 16px 48px rgba(0,0,0,0.2)", width: 280 }}>
+            <p className="text-[11px] tracking-[0.2em] uppercase mb-3 text-center" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
+              Edit Initials
+            </p>
+            <div className="flex gap-3 justify-center mb-4">
+              {editLetters.map((letter, i) => (
+                <input
+                  key={i}
+                  type="text"
+                  maxLength={1}
+                  value={letter}
+                  onChange={(e) => {
+                    const next = [...editLetters];
+                    next[i] = e.target.value.toUpperCase();
+                    setEditLetters(next);
+                  }}
+                  className="w-14 h-14 rounded-xl text-center text-xl font-semibold outline-none"
+                  style={{
+                    background: "#f8f5f0",
+                    border: "1.5px solid rgba(150,121,82,0.4)",
+                    color: "#1e232d",
+                    fontFamily: "Cormorant Garamond, Georgia, serif",
+                    fontSize: 22,
+                  }}
+                />
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setEditMode(false)}
+                className="flex-1 py-2.5 rounded-xl text-[12px] font-medium"
+                style={{ border: "1px solid rgba(30,35,45,0.1)", color: "#8b8b8b" }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                className="flex-1 py-2.5 rounded-xl text-[12px] font-semibold"
+                style={{ background: "linear-gradient(135deg, #967952, #e3c088)", color: "#1e232d" }}
+              >
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Added to order confirmation */}
+      {addedToOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(30,35,45,0.6)" }}>
+          <div className="rounded-3xl px-8 py-6 flex flex-col items-center gap-3 screen-enter" style={{ background: "#fff", boxShadow: "0 16px 48px rgba(0,0,0,0.2)" }}>
+            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: "linear-gradient(135deg, #967952, #e3c088)" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 6L9 17l-5-5" />
+              </svg>
+            </div>
+            <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
+              Added to Order
+            </p>
+            <p className="text-[12px]" style={{ color: "#8b8b8b" }}>
+              Monogram &ldquo;{monogramText}&rdquo; on {colors[selectedColor].name}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

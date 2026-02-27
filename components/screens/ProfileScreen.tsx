@@ -1,31 +1,33 @@
 "use client";
 
-const orders = [
-  { name: "Dusty Rose Garden", date: "Feb 18, 2026", price: "$169", status: "Delivered" },
-  { name: "Cream Velvet", date: "Jan 15, 2026", price: "$159", status: "Delivered" },
-  { name: "Navy Classic", date: "Dec 22, 2025", price: "$149", status: "Delivered" },
-];
+import { useState } from "react";
+import { getOrderHistory } from "@/lib/api";
+import SettingsDrawer from "../SettingsDrawer";
+import type { Screen } from "../BottomNav";
 
-export default function ProfileScreen() {
+interface ProfileScreenProps {
+  onNavigate?: (screen: Screen | "about") => void;
+}
+
+const statusColors: Record<string, string> = {
+  Delivered: "#967952",
+  Shipping: "#e3c088",
+  "In Production": "#e4b2a0",
+  Processing: "#8b8b8b",
+};
+
+export default function ProfileScreen({ onNavigate }: ProfileScreenProps) {
+  const [drawerSection, setDrawerSection] = useState<string | null>(null);
+  const orders = getOrderHistory();
+
   return (
-    <div
-      className="w-full pb-24 screen-enter"
-      style={{ background: "#f8f5f0", minHeight: "100%" }}
-    >
+    <div className="w-full pb-24 screen-enter" style={{ background: "#f8f5f0", minHeight: "100%" }}>
       {/* Header */}
       <div className="px-5 pt-4 pb-5">
         <p className="text-[11px] tracking-[0.25em] uppercase mb-1" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
           Your Profile
         </p>
-        <h2
-          style={{
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-            fontSize: 30,
-            fontWeight: 600,
-            color: "#1e232d",
-            lineHeight: 1,
-          }}
-        >
+        <h2 style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 30, fontWeight: 600, color: "#1e232d", lineHeight: 1 }}>
           Member Card
         </h2>
       </div>
@@ -40,7 +42,6 @@ export default function ProfileScreen() {
             minHeight: 200,
           }}
         >
-          {/* Gold pattern overlay */}
           <div
             className="absolute inset-0 opacity-5"
             style={{
@@ -48,68 +49,36 @@ export default function ProfileScreen() {
                 "repeating-linear-gradient(45deg, #e3c088 0px, #e3c088 1px, transparent 1px, transparent 16px), repeating-linear-gradient(-45deg, #e3c088 0px, #e3c088 1px, transparent 1px, transparent 16px)",
             }}
           />
-
-          {/* Top accent line */}
           <div className="absolute top-0 left-0 right-0 h-[1px]" style={{ background: "linear-gradient(90deg, transparent, rgba(227,192,136,0.6), transparent)" }} />
 
           <div className="relative p-5">
-            {/* Top row */}
             <div className="flex items-start justify-between mb-5">
               <div>
                 <p className="text-[10px] tracking-[0.3em] uppercase mb-1" style={{ color: "rgba(227,192,136,0.5)", fontFamily: "Inter, sans-serif" }}>
                   The Couture Club
                 </p>
-                <p
-                  style={{
-                    fontFamily: "Cormorant Garamond, Georgia, serif",
-                    fontSize: 24,
-                    fontWeight: 600,
-                    color: "#f8f5f0",
-                  }}
-                >
+                <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 24, fontWeight: 600, color: "#f8f5f0" }}>
                   Ella Johnson
                 </p>
               </div>
               <div
                 className="rounded-xl w-14 h-14 flex items-center justify-center"
-                style={{
-                  background: "linear-gradient(135deg, #967952 0%, #e3c088 100%)",
-                  boxShadow: "0 4px 16px rgba(150,121,82,0.4)",
-                }}
+                style={{ background: "linear-gradient(135deg, #967952 0%, #e3c088 100%)", boxShadow: "0 4px 16px rgba(150,121,82,0.4)" }}
               >
-                <span
-                  style={{
-                    fontFamily: "Cormorant Garamond, Georgia, serif",
-                    fontSize: 22,
-                    fontWeight: 700,
-                    color: "#1e232d",
-                  }}
-                >
-                  MC
-                </span>
+                <span style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 22, fontWeight: 700, color: "#1e232d" }}>MC</span>
               </div>
             </div>
 
-            {/* Divider */}
             <div className="h-px mb-4" style={{ background: "rgba(227,192,136,0.15)" }} />
 
-            {/* Stats row */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               {[
                 { label: "Member Since", value: "Jan '26" },
                 { label: "Tier", value: "Petal" },
-                { label: "Orders", value: "3" },
+                { label: "Orders", value: String(orders.length) },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
-                  <p
-                    style={{
-                      fontFamily: "Cormorant Garamond, Georgia, serif",
-                      fontSize: 18,
-                      fontWeight: 600,
-                      color: "#e3c088",
-                      lineHeight: 1,
-                    }}
-                  >
+                  <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 18, fontWeight: 600, color: "#e3c088", lineHeight: 1 }}>
                     {stat.value}
                   </p>
                   <p className="text-[10px] mt-0.5" style={{ color: "rgba(248,245,240,0.4)", fontFamily: "Inter, sans-serif" }}>
@@ -119,13 +88,8 @@ export default function ProfileScreen() {
               ))}
             </div>
 
-            {/* QR / ID row */}
             <div className="flex items-center justify-between">
-              {/* Pseudo-QR */}
-              <div
-                className="w-16 h-16 rounded-lg overflow-hidden relative"
-                style={{ background: "rgba(248,245,240,0.05)", border: "1px solid rgba(227,192,136,0.2)" }}
-              >
+              <div className="w-16 h-16 rounded-lg overflow-hidden relative" style={{ background: "rgba(248,245,240,0.05)", border: "1px solid rgba(227,192,136,0.2)" }}>
                 <div className="grid grid-cols-5 gap-0.5 p-1 w-full h-full">
                   {Array.from({ length: 25 }).map((_, i) => (
                     <div
@@ -141,69 +105,52 @@ export default function ProfileScreen() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1">
-                <span
-                  className="text-[11px] font-medium tracking-widest"
-                  style={{ color: "rgba(248,245,240,0.3)", fontFamily: "Inter, sans-serif" }}
-                >
+                <span className="text-[11px] font-medium tracking-widest" style={{ color: "rgba(248,245,240,0.3)", fontFamily: "Inter, sans-serif" }}>
                   MEMBER #00847
                 </span>
                 <span className="text-[10px] tracking-wider" style={{ color: "rgba(248,245,240,0.2)", fontFamily: "Inter, sans-serif" }}>
                   Founder Status
                 </span>
-                <div
-                  className="px-2.5 py-0.5 rounded-full"
-                  style={{
-                    background: "rgba(227,192,136,0.15)",
-                    border: "1px solid rgba(227,192,136,0.3)",
-                  }}
-                >
-                  <span className="text-[9px] tracking-widest uppercase" style={{ color: "#e3c088" }}>
-                    Free Shipping ✓
-                  </span>
+                <div className="px-2.5 py-0.5 rounded-full" style={{ background: "rgba(227,192,136,0.15)", border: "1px solid rgba(227,192,136,0.3)" }}>
+                  <span className="text-[9px] tracking-widest uppercase" style={{ color: "#e3c088" }}>Free Shipping ✓</span>
                 </div>
               </div>
             </div>
+
+            {/* Est. badge */}
+            <p className="text-center text-[9px] mt-3 tracking-wider" style={{ color: "rgba(248,245,240,0.2)" }}>
+              By Minky Couture · Est. 2009
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Order history */}
+      {/* Order history — REAL data */}
       <div className="px-5 mb-4">
         <div className="flex items-center justify-between mb-3">
-          <h3
-            style={{
-              fontFamily: "Cormorant Garamond, Georgia, serif",
-              fontSize: 20,
-              fontWeight: 600,
-              color: "#1e232d",
-            }}
-          >
+          <h3 style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
             Order History
           </h3>
-          <button className="text-[12px]" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>See All</button>
         </div>
         <div className="flex flex-col gap-2">
           {orders.map((order) => (
             <div
-              key={order.name}
+              key={order.id}
               className="flex items-center justify-between p-3 rounded-2xl"
               style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)" }}
             >
               <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-xl flex-shrink-0"
-                  style={{ background: "rgba(30,35,45,0.06)" }}
-                />
+                <div className="w-10 h-10 rounded-xl flex-shrink-0" style={{ background: order.colorHex, border: "1px solid rgba(30,35,45,0.06)" }} />
                 <div>
                   <p className="text-[13px] font-medium text-[#1e232d]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {order.name}
+                    {order.productName}
                   </p>
                   <p className="text-[11px] text-[#8b8b8b]">{order.date}</p>
                 </div>
               </div>
               <div className="text-right">
                 <p className="text-[13px] font-semibold" style={{ color: "#1e232d", fontFamily: "Inter, sans-serif" }}>{order.price}</p>
-                <p className="text-[10px]" style={{ color: "#967952" }}>{order.status}</p>
+                <p className="text-[10px] font-medium" style={{ color: statusColors[order.status] ?? "#8b8b8b" }}>{order.status}</p>
               </div>
             </div>
           ))}
@@ -212,15 +159,7 @@ export default function ProfileScreen() {
 
       {/* Settings */}
       <div className="px-5">
-        <h3
-          className="mb-3"
-          style={{
-            fontFamily: "Cormorant Garamond, Georgia, serif",
-            fontSize: 20,
-            fontWeight: 600,
-            color: "#1e232d",
-          }}
-        >
+        <h3 className="mb-3" style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
           Preferences
         </h3>
         {[
@@ -230,9 +169,10 @@ export default function ProfileScreen() {
           { label: "Referral Code", icon: "🔗" },
           { label: "Contact Concierge", icon: "💌" },
         ].map((item) => (
-          <div
+          <button
             key={item.label}
-            className="flex items-center justify-between py-3.5 px-4 rounded-xl mb-2 cursor-pointer"
+            onClick={() => setDrawerSection(item.label)}
+            className="flex items-center justify-between py-3.5 px-4 rounded-xl mb-2 w-full text-left transition-all active:scale-98"
             style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)" }}
           >
             <div className="flex items-center gap-3">
@@ -242,11 +182,33 @@ export default function ProfileScreen() {
               </span>
             </div>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 18l6-6-6-6"/>
+              <path d="M9 18l6-6-6-6" />
             </svg>
-          </div>
+          </button>
         ))}
+
+        {/* About Minky Couture link */}
+        <button
+          onClick={() => onNavigate?.("about" as Screen)}
+          className="flex items-center justify-between py-3.5 px-4 rounded-xl mb-2 w-full text-left transition-all active:scale-98"
+          style={{ background: "rgba(150,121,82,0.06)", border: "1px solid rgba(150,121,82,0.15)" }}
+        >
+          <div className="flex items-center gap-3">
+            <span>✦</span>
+            <span className="text-[13px] font-medium" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
+              About Minky Couture
+            </span>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#967952" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
       </div>
+
+      {/* Settings drawer */}
+      {drawerSection && (
+        <SettingsDrawer section={drawerSection} onClose={() => setDrawerSection(null)} />
+      )}
     </div>
   );
 }

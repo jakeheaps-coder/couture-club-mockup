@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&family=Dancing+Script:wght@400;500;600;700&display=swap');
 
 :root {
   --mc-navy: #1e232d;
@@ -117,4 +116,20 @@ body {
 
 .countdown-pulse {
   animation: countdown-pulse 1s ease-in-out infinite;
+}
+
+/* Screen exit transition */
+.screen-exit {
+  animation: fadeOutDown 0.12s ease-in forwards;
+}
+
+@keyframes fadeOutDown {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
+/* Focus visible for accessibility */
+*:focus-visible {
+  outline: 2px solid #967952;
+  outline-offset: 2px;
 }

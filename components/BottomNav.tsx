@@ -2,7 +2,17 @@
 
 import React from "react";
 
-export type Screen = "splash" | "home" | "vault" | "loyalty" | "studio" | "heart" | "profile";
+export type Screen =
+  | "splash"
+  | "home"
+  | "shop"
+  | "loyalty"
+  | "studio"
+  | "heart"
+  | "profile"
+  | "product-detail"
+  | "about"
+  | "content-detail";
 
 interface BottomNavProps {
   active: Screen;
@@ -21,13 +31,13 @@ const tabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: "vault",
-    label: "Vault",
+    id: "shop",
+    label: "Shop",
     icon: (
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-        <path d="M7 11V7a5 5 0 0110 0v4"/>
-        <circle cx="12" cy="16" r="1.5"/>
+        <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/>
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <path d="M16 10a4 4 0 01-8 0"/>
       </svg>
     ),
   },
@@ -61,8 +71,11 @@ const tabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
   },
 ];
 
+// Screens that should not show the bottom nav
+const hiddenScreens: Screen[] = ["splash", "product-detail", "about", "content-detail"];
+
 export default function BottomNav({ active, onNavigate }: BottomNavProps) {
-  if (active === "splash") return null;
+  if (hiddenScreens.includes(active)) return null;
 
   return (
     <div
@@ -83,30 +96,19 @@ export default function BottomNav({ active, onNavigate }: BottomNavProps) {
               onClick={() => onNavigate(tab.id)}
               className="flex flex-col items-center gap-1 px-3 py-1 transition-all duration-200"
               style={{ minWidth: 52 }}
+              aria-label={tab.label}
             >
-              <div
-                style={{
-                  color: isActive ? "#967952" : "#8b8b8b",
-                  transition: "color 0.2s",
-                }}
-              >
+              <div style={{ color: isActive ? "#967952" : "#8b8b8b", transition: "color 0.2s" }}>
                 {tab.icon}
               </div>
               <span
                 className="text-[10px] font-medium tracking-wide"
-                style={{
-                  color: isActive ? "#967952" : "#8b8b8b",
-                  fontFamily: "Inter, sans-serif",
-                  transition: "color 0.2s",
-                }}
+                style={{ color: isActive ? "#967952" : "#8b8b8b", fontFamily: "Inter, sans-serif", transition: "color 0.2s" }}
               >
                 {tab.label}
               </span>
               {isActive && (
-                <div
-                  className="w-1 h-1 rounded-full"
-                  style={{ background: "#967952", marginTop: -2 }}
-                />
+                <div className="w-1 h-1 rounded-full" style={{ background: "#967952", marginTop: -2 }} />
               )}
             </button>
           );
