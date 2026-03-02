@@ -206,7 +206,7 @@ const plushProducts: Product[] = [
   {
     id: "prod-plush-night-sky",
     handle: "plush-night-sky",
-    title: "Lush Night Sky",
+    title: "Plush Night Sky",
     description:
       "A deep navy plush blanket inspired by starlit evenings. Rich color meets everyday softness.",
     collection: "plush",
@@ -412,14 +412,82 @@ const luxuryProducts: Product[] = [
 // ---------------------------------------------------------------------------
 // ALL PRODUCTS
 // ---------------------------------------------------------------------------
-export const allProducts: Product[] = [
+
+// Mark some variants as sold out for realism
+function markSoldOut(products: Product[]): Product[] {
+  return products.map((p) => {
+    // Cream Hugs — Infant sold out
+    if (p.id === "prod-hugs-cream") {
+      return {
+        ...p,
+        variants: p.variants.map((v) =>
+          v.size === "Infant" ? { ...v, available: false } : v,
+        ),
+      };
+    }
+    // Cloud Midnight — Grande sold out
+    if (p.id === "prod-cloud-midnight") {
+      return {
+        ...p,
+        variants: p.variants.map((v) =>
+          v.size === "Grande" ? { ...v, available: false } : v,
+        ),
+      };
+    }
+    // Sorbet Vanilla — Monster sold out
+    if (p.id === "prod-sorbet-vanilla") {
+      return {
+        ...p,
+        variants: p.variants.map((v) =>
+          v.size === "Monster" ? { ...v, available: false } : v,
+        ),
+      };
+    }
+    return p;
+  });
+}
+
+// Product image paths — maps handle to generated product photo
+const productImages: Record<string, string> = {
+  "cream-hugs": "/images/products/cream-hugs.png",
+  "black-hugs": "/images/products/black-hugs.png",
+  "oatmeal-hugs": "/images/products/oatmeal-hugs.png",
+  "mist-hugs": "/images/products/mist-hugs.png",
+  "alaskan-blue-hugs": "/images/products/alaskan-blue-hugs.png",
+  "copper-hugs": "/images/products/copper-hugs.png",
+  "petal-pink-hugs": "/images/products/petal-pink-hugs.png",
+  "cloud-cream": "/images/products/cloud-cream.png",
+  "cloud-midnight": "/images/products/cloud-midnight.png",
+  "cloud-blush": "/images/products/cloud-blush.png",
+  "plush-night-sky": "/images/products/plush-night-sky.png",
+  "plush-charcoal": "/images/products/plush-charcoal.png",
+  "feather-night-sky": "/images/products/feather-night-sky.png",
+  "sorbet-vanilla": "/images/products/sorbet-vanilla.png",
+  "sorbet-silver-cloud": "/images/products/sorbet-silver-cloud.png",
+  "sorbet-black": "/images/products/sorbet-black.png",
+  "sorbet-blush-pink": "/images/products/sorbet-blush-pink.png",
+  "print-wildflower": "/images/products/print-wildflower.png",
+  "print-leopard-luxe": "/images/products/print-leopard-luxe.png",
+  "print-garden-party": "/images/products/print-garden-party.png",
+  "luxury-champagne-toast": "/images/products/luxury-champagne-toast.png",
+  "luxury-founders-edition": "/images/products/luxury-founders-edition.png",
+};
+
+function addImages(products: Product[]): Product[] {
+  return products.map((p) => ({
+    ...p,
+    image: productImages[p.handle] ?? undefined,
+  }));
+}
+
+export const allProducts: Product[] = addImages(markSoldOut([
   ...hugsProducts,
   ...cloudProducts,
   ...plushProducts,
   ...sorbetProducts,
   ...printProducts,
   ...luxuryProducts,
-];
+]));
 
 // ---------------------------------------------------------------------------
 // VAULT DROPS
@@ -530,6 +598,7 @@ export const notifications: Notification[] = [
     time: "2 min ago",
     read: false,
     icon: "lock",
+    navigateTo: "shop",
   },
   {
     id: "notif-2",
@@ -538,6 +607,7 @@ export const notifications: Notification[] = [
     time: "3 days ago",
     read: false,
     icon: "star",
+    navigateTo: "loyalty",
   },
   {
     id: "notif-3",
@@ -546,6 +616,7 @@ export const notifications: Notification[] = [
     time: "1 week ago",
     read: true,
     icon: "heart",
+    navigateTo: "loyalty",
   },
   {
     id: "notif-4",
@@ -554,6 +625,7 @@ export const notifications: Notification[] = [
     time: "2 weeks ago",
     read: true,
     icon: "heart",
+    navigateTo: "heart",
   },
 ];
 
@@ -576,14 +648,6 @@ export const orderHistory: OrderItem[] = [
     price: "$149",
     status: "Shipping",
     colorHex: "#1e232d",
-  },
-  {
-    id: "order-3",
-    productName: "Monogram Custom — Grande",
-    date: "Feb 5, 2026",
-    price: "$219",
-    status: "In Production",
-    colorHex: "#e4b2a0",
   },
   {
     id: "order-4",

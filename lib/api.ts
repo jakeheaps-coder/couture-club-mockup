@@ -39,6 +39,24 @@ export function getProductsByCollection(handle: string): Product[] {
   return allProducts.filter((p) => p.collection === handle);
 }
 
+export function searchProducts(query: string): Product[] {
+  const q = query.toLowerCase().trim();
+  if (!q) return [];
+  return allProducts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(q) ||
+      p.collection.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      p.material.toLowerCase().includes(q) ||
+      p.tags.some((t) => t.toLowerCase().includes(q)),
+  );
+}
+
+export function getProductsByTag(tag: string): Product[] {
+  const t = tag.toLowerCase().trim();
+  return allProducts.filter((p) => p.tags.some((pt) => pt.toLowerCase() === t));
+}
+
 // ── Collections ─────────────────────────────────────────────────────────────
 
 export function getCollections(): Collection[] {

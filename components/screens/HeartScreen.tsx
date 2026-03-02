@@ -2,38 +2,27 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import CartBadge from "@/components/CartBadge";
 
-const impacts = [
-  {
-    name: "Sarah M.",
-    location: "Primary Children's NICU, Utah",
-    blankets: 3,
-    color: "#e4b2a0",
-    quote: "She held it the moment we placed it on her. Our first calm moment in 11 days.",
-  },
-  {
-    name: "The Torres Family",
-    location: "St. Jude Children's Hospital, TN",
-    blankets: 1,
-    color: "#e3c088",
-    quote: "It was the only thing that brought him comfort during treatment.",
-  },
-  {
-    name: "Baby Emma",
-    location: "Primary Children's NICU, Utah",
-    blankets: 2,
-    color: "#967952",
-    quote: "The nurses said she slept better every night with her Minky. We're forever grateful.",
-  },
+const recentDonations = [
+  { hospital: "Primary Children's Hospital NICU", location: "Salt Lake City, UT", blankets: 240, color: "#e4b2a0" },
+  { hospital: "St. Jude Children's Hospital", location: "Memphis, TN", blankets: 180, color: "#e3c088" },
+  { hospital: "Children's Hospital of Philadelphia", location: "Philadelphia, PA", blankets: 150, color: "#967952" },
+  { hospital: "Intermountain Medical Center NICU", location: "Murray, UT", blankets: 120, color: "#b87333" },
 ];
 
 const stats = [
   { value: "155,000+", label: "Blankets donated" },
-  { value: "$4M", label: "To Primary Children's" },
+  { value: "$5.5M+", label: "In retail value given" },
   { value: "300+", label: "Partner hospitals" },
 ];
 
-export default function HeartScreen() {
+interface HeartScreenProps {
+  cartCount?: number;
+  onOpenCart?: () => void;
+}
+
+export default function HeartScreen({ cartCount = 0, onOpenCart }: HeartScreenProps) {
   const [heartDropNotified, setHeartDropNotified] = useState(false);
   const totalBlankets = 3;
   const nextMilestone = 5;
@@ -51,25 +40,27 @@ export default function HeartScreen() {
         </div>
         <div className="absolute inset-0 opacity-80" style={{ background: "linear-gradient(160deg, #1e232d 0%, #2e3547 100%)" }} />
         <div className="relative">
-          <p className="text-[11px] tracking-[0.25em] uppercase mb-1" style={{ color: "#e4b2a0", fontFamily: "Inter, sans-serif" }}>
-            Philanthropic Program
-          </p>
-          <h2
-            style={{
-              fontFamily: "Cormorant Garamond, Georgia, serif",
-              fontSize: 32,
-              fontWeight: 600,
-              color: "#f8f5f0",
-              lineHeight: 1.1,
-            }}
-          >
-            Heart of Minky
-          </h2>
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-[11px] tracking-[0.25em] uppercase mb-1" style={{ color: "#e4b2a0", fontFamily: "Inter, sans-serif" }}>
+                Philanthropic Program
+              </p>
+              <h2
+                style={{
+                  fontFamily: "Cormorant Garamond, Georgia, serif",
+                  fontSize: 32,
+                  fontWeight: 600,
+                  color: "#f8f5f0",
+                  lineHeight: 1.1,
+                }}
+              >
+                Heart of Minky
+              </h2>
+            </div>
+            <CartBadge count={cartCount} onClick={onOpenCart} variant="light" />
+          </div>
           <p className="text-[13px] mt-2 leading-relaxed" style={{ color: "rgba(248,245,240,0.6)", fontFamily: "Inter, sans-serif" }}>
-            Every purchase sends a mini blanket to a child in need.
-          </p>
-          <p className="text-[11px] mt-1 italic" style={{ color: "rgba(228,178,160,0.7)", fontFamily: "Cormorant Garamond, Georgia, serif" }}>
-            &ldquo;It started in a NICU, with one blanket and one family.&rdquo;
+            Every purchase helps send a mini blanket to a child in need. Comfort and an extra hug, in the form of a blanket.
           </p>
         </div>
       </div>
@@ -170,51 +161,60 @@ export default function HeartScreen() {
             How It Started
           </p>
           <p className="text-[13px] leading-relaxed" style={{ color: "rgba(248,245,240,0.7)", fontFamily: "Inter, sans-serif" }}>
-            When founder Sandi Hendry&apos;s grandson was born premature at just 30 weeks, she placed a mini Minky in the NICU to collect her daughter&apos;s scent and comfort the baby. That moment of comfort inspired the Heart of Minky.
+            Sandi Hendry founded Minky Couture on compassion and helping others. These values have led to countless blanket donations across the United States and internationally — from NICU babies to victims of natural disasters, mass tragedies, and bereavement gifts for families who have lost loved ones.
           </p>
           <p className="text-[12px] mt-2" style={{ color: "rgba(228,178,160,0.7)", fontFamily: "Inter, sans-serif" }}>
-            Today, $5.5 million in retail value has been donated to families in need.
+            Today, over $5.5 million in blankets have been donated to families and organizations in need, including a $4 million commitment to Primary Children&apos;s Hospital.
           </p>
         </div>
       </div>
 
-      {/* Recent impacts */}
+      {/* Recent donations by hospital */}
       <div className="px-5 mb-5">
         <h3 className="mb-3" style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
-          Recent Recipients
+          Recent Donations
         </h3>
-        <div className="flex flex-col gap-3">
-          {impacts.map((impact) => (
-            <div key={impact.name} className="p-3 rounded-2xl" style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)" }}>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${impact.color}20` }}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill={impact.color} stroke={impact.color} strokeWidth="1">
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] font-medium text-[#1e232d]" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {impact.name}
-                  </p>
-                  <p className="text-[11px] text-[#8b8b8b] truncate" style={{ fontFamily: "Inter, sans-serif" }}>
-                    {impact.location}
-                  </p>
-                </div>
-                <div className="flex-shrink-0 text-right">
-                  <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 18, fontWeight: 600, color: impact.color, lineHeight: 1 }}>
-                    {impact.blankets}
-                  </p>
-                  <p className="text-[10px]" style={{ color: "#8b8b8b" }}>
-                    {impact.blankets === 1 ? "blanket" : "blankets"}
-                  </p>
-                </div>
+        <div className="flex flex-col gap-2">
+          {recentDonations.map((donation) => (
+            <div key={donation.hospital} className="p-3 rounded-2xl flex items-center gap-3" style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)" }}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: `${donation.color}20` }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill={donation.color} stroke={donation.color} strokeWidth="1">
+                  <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+                </svg>
               </div>
-              {/* Quote */}
-              <p className="text-[12px] italic leading-relaxed pl-13 ml-13" style={{ color: "#4a5568", fontFamily: "Cormorant Garamond, Georgia, serif", paddingLeft: 52 }}>
-                &ldquo;{impact.quote}&rdquo;
-              </p>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-medium text-[#1e232d] leading-tight" style={{ fontFamily: "Inter, sans-serif" }}>
+                  {donation.hospital}
+                </p>
+                <p className="text-[11px] text-[#8b8b8b]" style={{ fontFamily: "Inter, sans-serif" }}>
+                  {donation.location}
+                </p>
+              </div>
+              <div className="flex-shrink-0 text-right">
+                <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 18, fontWeight: 600, color: donation.color, lineHeight: 1 }}>
+                  {donation.blankets}
+                </p>
+                <p className="text-[10px]" style={{ color: "#8b8b8b" }}>
+                  blankets
+                </p>
+              </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Grand tier cross-link */}
+      <div className="mx-5 mb-5">
+        <div
+          className="rounded-xl px-4 py-3 flex items-center gap-3"
+          style={{ background: "rgba(150,121,82,0.08)", border: "1px solid rgba(150,121,82,0.15)" }}
+        >
+          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center" style={{ background: "linear-gradient(135deg, #967952, #e3c088)" }}>
+            <span style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 14, fontWeight: 700, color: "#1e232d" }}>MC</span>
+          </div>
+          <p className="text-[12px] leading-relaxed" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
+            <strong>Grand tier members:</strong> a donation is made in YOUR name to the hospital of your choice.
+          </p>
         </div>
       </div>
 
@@ -230,8 +230,8 @@ export default function HeartScreen() {
             <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 16, fontWeight: 600, color: "#f8f5f0" }}>
               Heart Drop — Coming Soon
             </p>
-            <p className="text-[11px]" style={{ color: "rgba(248,245,240,0.5)", fontFamily: "Inter, sans-serif" }}>
-              100% of proceeds to Primary Children&apos;s NICU
+            <p className="text-[11px] leading-relaxed" style={{ color: "rgba(248,245,240,0.5)", fontFamily: "Inter, sans-serif" }}>
+              A limited-edition blanket where 100% of proceeds go directly to Primary Children&apos;s Hospital NICU. Buy a blanket, fund a cause.
             </p>
           </div>
           <button
@@ -247,6 +247,21 @@ export default function HeartScreen() {
             {heartDropNotified ? "Notified ✓" : "Notify"}
           </button>
         </div>
+      </div>
+
+      {/* Women-owned badge + tagline */}
+      <div className="mx-5 mb-5 text-center">
+        <div className="flex items-center justify-center gap-3 mb-2">
+          <span className="text-[10px] tracking-[0.2em] uppercase font-medium px-3 py-1 rounded-full" style={{ border: "1px solid rgba(150,121,82,0.3)", color: "#967952", fontFamily: "Inter, sans-serif" }}>
+            100% Women-Owned
+          </span>
+          <span className="text-[10px] tracking-[0.2em] uppercase font-medium px-3 py-1 rounded-full" style={{ border: "1px solid rgba(150,121,82,0.3)", color: "#967952", fontFamily: "Inter, sans-serif" }}>
+            Family-Founded 2009
+          </span>
+        </div>
+        <p className="text-[13px] italic" style={{ color: "#8b8b8b", fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 16 }}>
+          &ldquo;Luxury is a feeling. Loyalty is the reward.&rdquo;
+        </p>
       </div>
 
       {/* YouTube Video Embed */}

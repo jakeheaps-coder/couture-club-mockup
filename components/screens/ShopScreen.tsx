@@ -2,27 +2,35 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { getCollections, getProductsByCollection, getFeaturedProducts, getVaultDrops } from "@/lib/api";
+import { getCollections, getProductsByCollection, getFeaturedProducts, getVaultDrops, getProductById, searchProducts } from "@/lib/api";
+import CartBadge from "@/components/CartBadge";
 import type { Product, CollectionHandle } from "@/types";
 
 interface ShopScreenProps {
   onSelectProduct: (product: Product) => void;
   vaultEndTime: number;
+  cartCount?: number;
+  onOpenCart?: () => void;
 }
 
-export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreenProps) {
+export default function ShopScreen({ onSelectProduct, vaultEndTime, cartCount = 0, onOpenCart }: ShopScreenProps) {
   const [activeCollection, setActiveCollection] = useState<CollectionHandle | "all">("all");
   const [unlocked, setUnlocked] = useState(false);
   const [notified, setNotified] = useState<Set<string>>(new Set());
   const [timeLeft, setTimeLeft] = useState({ h: 0, m: 0, s: 0 });
+  const [searchQuery, setSearchQuery] = useState("");
 
   const collections = getCollections();
   const vaultDrops = getVaultDrops();
   const liveDrop = vaultDrops.find((d) => d.live);
   const upcomingDrops = vaultDrops.filter((d) => !d.live);
 
-  const products =
-    activeCollection === "all"
+  const isSearching = searchQuery.trim().length > 0;
+  const searchResults = isSearching ? searchProducts(searchQuery) : [];
+
+  const products = isSearching
+    ? searchResults
+    : activeCollection === "all"
       ? getFeaturedProducts()
       : getProductsByCollection(activeCollection);
 
@@ -47,18 +55,26 @@ export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreen
       {/* ── The Vault Section ─────────────────────────────────── */}
       <div style={{ background: "#1e232d" }} className="pb-5">
         <div className="px-5 pt-4 pb-2">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="w-2 h-2 rounded-full" style={{ background: "#967952", boxShadow: "0 0 6px #967952" }} />
-            <span className="text-[11px] tracking-[0.3em] uppercase" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
-              Members Only
-            </span>
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <div className="w-2 h-2 rounded-full" style={{ background: "#967952", boxShadow: "0 0 6px #967952" }} />
+                <span className="text-[11px] tracking-[0.3em] uppercase" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
+                  Members Only
+                </span>
+              </div>
+              <h2
+                className="gold-shimmer"
+                style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 30, fontWeight: 600, lineHeight: 1 }}
+              >
+                The Vault
+              </h2>
+            </div>
+            <CartBadge count={cartCount} onClick={onOpenCart} variant="light" />
           </div>
-          <h2
-            className="gold-shimmer"
-            style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 30, fontWeight: 600, lineHeight: 1 }}
-          >
-            The Vault
-          </h2>
+          <p className="text-[12px] mt-1" style={{ color: "rgba(248,245,240,0.5)", fontFamily: "Inter, sans-serif" }}>
+            Exclusive limited-edition drops available only to Couture Club members. Once they&apos;re gone, they&apos;re gone.
+          </p>
         </div>
 
         {liveDrop && (
@@ -73,7 +89,7 @@ export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreen
             >
               {/* Hero area */}
               <div className="relative w-full h-36 flex items-center justify-center" style={{ background: liveDrop.colorHex }}>
-                <Image src="/images/vault-box.png" alt="The Vault" fill style={{ objectFit: "cover", opacity: 0.4 }} />
+                {(() => { const p = getProductById(liveDrop.productId); return p?.image ? <Image src={p.image} alt={liveDrop.name} fill style={{ objectFit: "cover", opacity: 0.6 }} /> : <Image src="/images/vault-box.png" alt="The Vault" fill style={{ objectFit: "cover", opacity: 0.4 }} />; })()}
                 <div className="absolute inset-0 opacity-50" style={{ background: "radial-gradient(ellipse at center, #e3c088 0%, transparent 70%)" }} />
                 <button
                   className="relative z-10 transition-all duration-500 active:scale-90"
@@ -150,6 +166,14 @@ export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreen
                 <button
                   className="w-full py-3 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all active:scale-98"
                   style={{ background: "linear-gradient(135deg, #967952, #e3c088)", color: "#1e232d", letterSpacing: "0.1em" }}
+                  onClick={() => {
+                    if (unlocked && liveDrop) {
+                      const product = getProductById(liveDrop.productId);
+                      if (product) onSelectProduct(product);
+                    } else {
+                      setUnlocked(true);
+                    }
+                  }}
                 >
                   {unlocked ? "Shop This Drop" : "Unlock to Shop"}
                 </button>
@@ -208,39 +232,120 @@ export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreen
           Shop by Collection
         </h2>
         <p className="text-[12px] mb-3" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
-          The original luxury blanket. Est. 2009.
+          {activeCollection !== "all"
+            ? collections.find(c => c.handle === activeCollection)?.tagline ?? "The original luxury blanket. Est. 2009."
+            : "The original luxury blanket. Est. 2009."}
         </p>
 
-        {/* Collection pills */}
-        <div className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
-          <button
-            onClick={() => setActiveCollection("all")}
-            className="flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide transition-all"
+        {/* Search input */}
+        <div className="relative mb-3">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search blankets..."
+            className="w-full rounded-xl pl-9 pr-9 py-2.5 text-[13px] outline-none transition-all"
             style={{
-              background: activeCollection === "all" ? "#1e232d" : "#fff",
-              color: activeCollection === "all" ? "#e3c088" : "#1e232d",
-              border: activeCollection === "all" ? "1px solid #967952" : "1px solid rgba(30,35,45,0.1)",
+              border: searchQuery ? "1.5px solid rgba(150,121,82,0.4)" : "1.5px solid rgba(30,35,45,0.08)",
+              color: "#1e232d",
               fontFamily: "Inter, sans-serif",
+              background: "#fff",
             }}
-          >
-            Featured
-          </button>
-          {collections.map((col) => (
+          />
+          {searchQuery && (
             <button
-              key={col.handle}
-              onClick={() => setActiveCollection(col.handle)}
+              onClick={() => setSearchQuery("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2"
+              aria-label="Clear search"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8b8b8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        {/* Search results header or collection pills */}
+        {isSearching ? (
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-[12px]" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
+              {searchResults.length} result{searchResults.length !== 1 ? "s" : ""} for &ldquo;{searchQuery}&rdquo;
+            </p>
+            <button
+              onClick={() => setSearchQuery("")}
+              className="text-[12px] font-medium"
+              style={{ color: "#967952" }}
+            >
+              Clear
+            </button>
+          </div>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto pb-3" style={{ scrollbarWidth: "none" }}>
+            <button
+              onClick={() => setActiveCollection("all")}
               className="flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide transition-all"
               style={{
-                background: activeCollection === col.handle ? "#1e232d" : "#fff",
-                color: activeCollection === col.handle ? "#e3c088" : "#1e232d",
-                border: activeCollection === col.handle ? "1px solid #967952" : "1px solid rgba(30,35,45,0.1)",
+                background: activeCollection === "all" ? "#1e232d" : "#fff",
+                color: activeCollection === "all" ? "#e3c088" : "#1e232d",
+                border: activeCollection === "all" ? "1px solid #967952" : "1px solid rgba(30,35,45,0.1)",
                 fontFamily: "Inter, sans-serif",
               }}
             >
-              {col.title}
+              Featured
             </button>
-          ))}
-        </div>
+            {collections.map((col) => (
+              <button
+                key={col.handle}
+                onClick={() => setActiveCollection(col.handle)}
+                className="flex-shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide transition-all"
+                style={{
+                  background: activeCollection === col.handle ? "#1e232d" : "#fff",
+                  color: activeCollection === col.handle ? "#e3c088" : "#1e232d",
+                  border: activeCollection === col.handle ? "1px solid #967952" : "1px solid rgba(30,35,45,0.1)",
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                {col.title}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Empty search state */}
+        {isSearching && searchResults.length === 0 && (
+          <div className="flex flex-col items-center py-12 px-4">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center mb-4" style={{ background: "rgba(150,121,82,0.08)" }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#967952" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+            </div>
+            <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
+              Nothing matches &ldquo;{searchQuery}&rdquo;
+            </p>
+            <p className="text-[12px] mt-1 mb-4 text-center" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
+              Try a different search or explore our collections
+            </p>
+            <div className="flex gap-2 flex-wrap justify-center">
+              {collections.slice(0, 4).map((col) => (
+                <button
+                  key={col.handle}
+                  onClick={() => { setSearchQuery(""); setActiveCollection(col.handle); }}
+                  className="px-3 py-1.5 rounded-full text-[11px] font-medium tracking-wide"
+                  style={{ border: "1px solid rgba(150,121,82,0.3)", color: "#967952", fontFamily: "Inter, sans-serif" }}
+                >
+                  {col.title}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Product grid */}
         <div className="grid grid-cols-2 gap-3 mt-2">
@@ -252,21 +357,33 @@ export default function ShopScreen({ onSelectProduct, vaultEndTime }: ShopScreen
               style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)" }}
             >
               <div className="w-full h-32 relative flex items-center justify-center" style={{ background: product.colorHex }}>
+                {product.image ? (
+                  <Image src={product.image} alt={product.title} fill style={{ objectFit: "cover" }} />
+                ) : (
+                  <div
+                    className="w-16 h-16 rounded-2xl opacity-40"
+                    style={{
+                      background: `radial-gradient(ellipse, ${product.accentHex}50, transparent)`,
+                      border: `2px solid ${product.accentHex}30`,
+                    }}
+                  />
+                )}
                 {product.tags[0] && (
                   <span
-                    className="absolute top-2 left-2 text-[8px] tracking-widest uppercase px-2 py-0.5 rounded-full font-medium"
+                    className="absolute top-2 left-2 z-10 text-[8px] tracking-widest uppercase px-2 py-0.5 rounded-full font-medium"
                     style={{ background: product.accentHex, color: "#1e232d" }}
                   >
                     {product.tags[0]}
                   </span>
                 )}
-                <div
-                  className="w-16 h-16 rounded-2xl opacity-40"
-                  style={{
-                    background: `radial-gradient(ellipse, ${product.accentHex}50, transparent)`,
-                    border: `2px solid ${product.accentHex}30`,
-                  }}
-                />
+                {product.variants.some(v => !v.available) && (
+                  <span
+                    className="absolute bottom-2 right-2 z-10 text-[7px] tracking-widest uppercase px-1.5 py-0.5 rounded-full font-medium"
+                    style={{ background: "rgba(30,35,45,0.7)", color: "#e3c088", backdropFilter: "blur(4px)" }}
+                  >
+                    Selling Fast
+                  </span>
+                )}
               </div>
               <div className="px-2.5 py-2">
                 <p className="text-[12px] font-medium text-[#1e232d] leading-tight" style={{ fontFamily: "Inter, sans-serif" }}>

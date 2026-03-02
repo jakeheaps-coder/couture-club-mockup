@@ -4,15 +4,18 @@ import React from "react";
 
 export type Screen =
   | "splash"
+  | "onboarding"
   | "home"
   | "shop"
   | "loyalty"
-  | "studio"
   | "heart"
   | "profile"
   | "product-detail"
   | "about"
-  | "content-detail";
+  | "content-detail"
+  | "cart"
+  | "checkout"
+  | "order-confirmation";
 
 interface BottomNavProps {
   active: Screen;
@@ -51,16 +54,6 @@ const tabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
     ),
   },
   {
-    id: "studio",
-    label: "Studio",
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
-        <path d="M12 8v8M8 12h8"/>
-      </svg>
-    ),
-  },
-  {
     id: "heart",
     label: "Heart",
     icon: (
@@ -72,14 +65,16 @@ const tabs: { id: Screen; label: string; icon: React.ReactNode }[] = [
 ];
 
 // Screens that should not show the bottom nav
-const hiddenScreens: Screen[] = ["splash", "product-detail", "about", "content-detail"];
+const hiddenScreens: Screen[] = ["splash", "onboarding", "product-detail", "about", "content-detail", "cart", "checkout", "order-confirmation"];
 
 export default function BottomNav({ active, onNavigate }: BottomNavProps) {
   if (hiddenScreens.includes(active)) return null;
 
   return (
-    <div
+    <nav
       className="absolute bottom-0 left-0 right-0 z-50"
+      role="navigation"
+      aria-label="Main navigation"
       style={{
         background: "rgba(248,245,240,0.96)",
         backdropFilter: "blur(20px)",
@@ -97,6 +92,7 @@ export default function BottomNav({ active, onNavigate }: BottomNavProps) {
               className="flex flex-col items-center gap-1 px-3 py-1 transition-all duration-200"
               style={{ minWidth: 52 }}
               aria-label={tab.label}
+              aria-current={isActive ? "page" : undefined}
             >
               <div style={{ color: isActive ? "#967952" : "#8b8b8b", transition: "color 0.2s" }}>
                 {tab.icon}
@@ -114,6 +110,6 @@ export default function BottomNav({ active, onNavigate }: BottomNavProps) {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }

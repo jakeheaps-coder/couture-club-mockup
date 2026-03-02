@@ -6,8 +6,7 @@ export type CollectionHandle =
   | "plush"
   | "sorbet"
   | "print"
-  | "luxury"
-  | "alexander-james";
+  | "luxury";
 
 export interface Variant {
   id: string;
@@ -32,6 +31,8 @@ export interface Product {
   tags: string[];
   material: string;
   threadPoints: number;
+  image?: string;
+  thumbnailImage?: string;
 }
 
 export interface Collection {
@@ -76,6 +77,18 @@ export interface Notification {
   time: string;
   read: boolean;
   icon: string;
+  navigateTo?: string;
+}
+
+export interface CartItem {
+  id: string;
+  productId: string;
+  title: string;
+  size: Size;
+  quantity: number;
+  price: number;
+  colorHex: string;
+  accentHex: string;
 }
 
 export interface OrderItem {

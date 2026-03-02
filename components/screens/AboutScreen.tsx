@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 interface AboutScreenProps {
   onBack: () => void;
 }
@@ -11,13 +13,14 @@ const stats = [
 ];
 
 const milestones = [
-  { year: "2009", text: "Sandi sews the first Minky blanket for her hospitalized daughter" },
-  { year: "2010", text: "Friends and family line up — Sandi sells blankets from the trunk of her car" },
-  { year: "2013", text: "First retail location opens in Lindon, Utah" },
-  { year: "2019", text: "Sandi receives Ernst & Young Entrepreneur of the Year award" },
+  { year: "2009", text: "Sandi sews the first Minky blanket for her daughter during a life-threatening illness" },
+  { year: "2009", text: "Word spreads — Sandi sells blankets from the trunk of her car" },
+  { year: "2010", text: "First store opens in Layton, Utah; online shopping launches" },
+  { year: "2015", text: "Fifth store grand opening in Orem, Utah" },
+  { year: "2019", text: "Ernst & Young Entrepreneur of the Year award" },
   { year: "2020", text: "Women in Business Athena Award" },
-  { year: "2025", text: "Heart of Minky program launches — 155,000+ blankets donated, $5.5M in retail value" },
-  { year: "2025", text: "Minky Couture partners with Domo to power the next era of growth" },
+  { year: "2025", text: "Heart of Minky program — 155,000+ blankets donated, $5.5M in retail value" },
+  { year: "2025", text: "Minky Couture partners with Domo to power growth and community impact" },
 ];
 
 export default function AboutScreen({ onBack }: AboutScreenProps) {
@@ -81,24 +84,45 @@ export default function AboutScreen({ onBack }: AboutScreenProps) {
         <p className="text-[11px] tracking-[0.2em] uppercase mb-2" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
           The Founder
         </p>
-        <h2
-          style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 22, fontWeight: 600, color: "#1e232d", lineHeight: 1.2 }}
-        >
-          Sandi Hendry
-        </h2>
+        <div className="flex items-center gap-4 mb-3">
+          <Image
+            src="/images/sandi-hendry.jpeg"
+            alt="Sandi Hendry, Founder & CEO of Minky Couture"
+            width={64}
+            height={64}
+            className="rounded-full object-cover"
+            style={{ width: 64, height: 64 }}
+          />
+          <div>
+            <h2
+              style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 22, fontWeight: 600, color: "#1e232d", lineHeight: 1.2 }}
+            >
+              Sandi Hendry
+            </h2>
+            <p className="text-[12px]" style={{ color: "#8b8b8b", fontFamily: "Inter, sans-serif" }}>
+              Founder & CEO
+            </p>
+          </div>
+        </div>
 
         <div
-          className="rounded-2xl p-4 mt-3 mb-4"
+          className="rounded-2xl p-4 mt-1 mb-4"
           style={{ background: "#fff", border: "1px solid rgba(30,35,45,0.06)", boxShadow: "0 2px 12px rgba(30,35,45,0.06)" }}
         >
           <p className="text-[13px] leading-relaxed mb-3" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
-            In 2009, Sandi Hendry&apos;s daughter was hospitalized with a life-threatening illness. She wanted a blanket that was soft, cozy — and actually cute. So Sandi sewed one.
+            Sandi Hendry began with a hand-sewn blanket in 2009 when her adult daughter was sick with a life-threatening illness. The blanket she designed had all the same soft and cozy features of a baby blanket, but on a larger, more fashionable scale for adults.
           </p>
           <p className="text-[13px] leading-relaxed mb-3" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
-            Friends and family saw it and wanted their own. Within months, Sandi was selling blankets from the trunk of her car, surrounded by the friends who believed in her dream. Many of those original friends still work with her today.
+            Family and friends soon wanted their own. Sandi immediately got to work, sewing blankets and selling them from the trunk of her car. The trunk quickly became too small to meet demand and she decided to expand.
+          </p>
+          <p className="text-[13px] leading-relaxed mb-3" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
+            Sandi surrounded herself with a brilliant team of close friends who believed in her dream. Together, they built an organization that touches lives around the world, offering comfort and an extra hug in the form of a blanket. Many of those women who started with Sandi still work with her today.
+          </p>
+          <p className="text-[13px] leading-relaxed mb-3" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
+            Minky Couture opened its first store in Layton, Utah in 2010 and launched online shopping around the same time. Today, Minky Couture stores have spread across Utah with larger storefronts, extravagant chandeliers, and lavish design.
           </p>
           <p className="text-[13px] leading-relaxed" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
-            Today, Minky Couture employs around 300 people — mostly women — and 30-50 local seamstresses who craft each blanket with care. Every blanket is made with the same love Sandi put into that very first one.
+            Amazing local seamstresses in Utah communities sew many of the blankets — providing opportunities for dozens of stay-at-home moms to balance family and work. Every blanket is sewn with incredible attention to detail, rolled, packaged, and sent to its new home.
           </p>
         </div>
 

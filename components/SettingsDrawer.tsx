@@ -46,19 +46,79 @@ function NotificationSettings() {
 }
 
 function ShippingAddress() {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("Ella Johnson");
+  const [street, setStreet] = useState("123 Cottonwood Lane");
+  const [cityState, setCityState] = useState("Salt Lake City, UT 84101");
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = () => {
+    setEditing(false);
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   return (
     <div className="rounded-xl p-4" style={{ background: "rgba(30,35,45,0.03)", border: "1px solid rgba(30,35,45,0.06)" }}>
-      <p className="text-[13px] font-medium" style={{ color: "#1e232d", fontFamily: "Inter, sans-serif" }}>Ella Johnson</p>
-      <p className="text-[12px] mt-1 leading-relaxed" style={{ color: "#8b8b8b" }}>
-        123 Cottonwood Lane<br />
-        Salt Lake City, UT 84101
-      </p>
-      <button className="text-[12px] font-medium mt-2" style={{ color: "#967952" }}>Edit Address</button>
+      {editing ? (
+        <div className="flex flex-col gap-2">
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-[13px] outline-none"
+            style={{ border: "1.5px solid rgba(150,121,82,0.3)", color: "#1e232d", fontFamily: "Inter, sans-serif", background: "#f8f5f0" }}
+            placeholder="Full Name"
+          />
+          <input
+            value={street}
+            onChange={(e) => setStreet(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-[13px] outline-none"
+            style={{ border: "1.5px solid rgba(150,121,82,0.3)", color: "#1e232d", fontFamily: "Inter, sans-serif", background: "#f8f5f0" }}
+            placeholder="Street Address"
+          />
+          <input
+            value={cityState}
+            onChange={(e) => setCityState(e.target.value)}
+            className="w-full rounded-lg px-3 py-2 text-[13px] outline-none"
+            style={{ border: "1.5px solid rgba(150,121,82,0.3)", color: "#1e232d", fontFamily: "Inter, sans-serif", background: "#f8f5f0" }}
+            placeholder="City, State ZIP"
+          />
+          <div className="flex gap-2 mt-1">
+            <button
+              onClick={() => setEditing(false)}
+              className="flex-1 py-2 rounded-lg text-[12px] font-medium"
+              style={{ border: "1px solid rgba(30,35,45,0.1)", color: "#8b8b8b" }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              className="flex-1 py-2 rounded-lg text-[12px] font-semibold"
+              style={{ background: "linear-gradient(135deg, #967952, #e3c088)", color: "#1e232d" }}
+            >
+              Save
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+          <p className="text-[13px] font-medium" style={{ color: "#1e232d", fontFamily: "Inter, sans-serif" }}>{name}</p>
+          <p className="text-[12px] mt-1 leading-relaxed" style={{ color: "#8b8b8b" }}>
+            {street}<br />
+            {cityState}
+          </p>
+          <button onClick={() => setEditing(true)} className="text-[12px] font-medium mt-2" style={{ color: "#967952" }}>
+            {saved ? "Saved ✓" : "Edit Address"}
+          </button>
+        </>
+      )}
     </div>
   );
 }
 
 function PaymentMethods() {
+  const [cardAdded, setCardAdded] = useState(false);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(30,35,45,0.03)", border: "1px solid rgba(30,35,45,0.06)" }}>
@@ -70,7 +130,26 @@ function PaymentMethods() {
           <p className="text-[11px]" style={{ color: "#8b8b8b" }}>Expires 08/27</p>
         </div>
       </div>
-      <button className="text-[12px] font-medium" style={{ color: "#967952" }}>+ Add Payment Method</button>
+      {cardAdded && (
+        <div className="rounded-xl p-4 flex items-center gap-3" style={{ background: "rgba(30,35,45,0.03)", border: "1px solid rgba(30,35,45,0.06)" }}>
+          <div className="w-10 h-7 rounded flex items-center justify-center" style={{ background: "#1e232d" }}>
+            <span className="text-[10px] font-bold" style={{ color: "#e3c088" }}>MC</span>
+          </div>
+          <div>
+            <p className="text-[13px] font-medium" style={{ color: "#1e232d" }}>•••• •••• •••• 8821</p>
+            <p className="text-[11px]" style={{ color: "#8b8b8b" }}>Expires 12/28</p>
+          </div>
+        </div>
+      )}
+      <button
+        onClick={() => {
+          setCardAdded(true);
+        }}
+        className="text-[12px] font-medium transition-all"
+        style={{ color: "#967952" }}
+      >
+        {cardAdded ? "Card Added ✓" : "+ Add Payment Method"}
+      </button>
     </div>
   );
 }
@@ -120,18 +199,85 @@ function ContactConcierge() {
         className="w-14 h-14 rounded-full flex items-center justify-center"
         style={{ background: "linear-gradient(135deg, #967952, #e3c088)" }}
       >
-        <span className="text-xl">💌</span>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+          <polyline points="22,6 12,13 2,6" />
+        </svg>
       </div>
       <p className="text-[13px] text-center leading-relaxed" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
-        Our concierge team is here for styling advice, order help, or anything else. Available Mon–Fri, 9am–5pm MST.
+        Our dedicated Minky Couture support team is here for styling advice, order help, gift recommendations, or anything else. Real people, real answers.
+      </p>
+      <p className="text-[11px] text-center" style={{ color: "#8b8b8b" }}>
+        Available Mon–Fri, 9am–5pm MST
       </p>
       <button
         className="px-5 py-3 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all active:scale-98"
         style={{ background: "linear-gradient(135deg, #967952, #e3c088)", color: "#1e232d" }}
+        onClick={() => window.open("mailto:concierge@minkycouture.com?subject=Couture Club Support")}
       >
         Start Chat
       </button>
       <p className="text-[11px]" style={{ color: "#8b8b8b" }}>or email concierge@minkycouture.com</p>
+    </div>
+  );
+}
+
+function Feedback() {
+  const [submitted, setSubmitted] = useState(false);
+  const [feedback, setFeedback] = useState("");
+
+  if (submitted) {
+    return (
+      <div className="flex flex-col items-center gap-3">
+        <div
+          className="w-14 h-14 rounded-full flex items-center justify-center"
+          style={{ background: "linear-gradient(135deg, #967952, #e3c088)" }}
+        >
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </div>
+        <p style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 20, fontWeight: 600, color: "#1e232d" }}>
+          Thank You!
+        </p>
+        <p className="text-[13px] text-center leading-relaxed" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
+          Your feedback helps us make Minky Couture even better. We read every message.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3">
+      <p className="text-[13px] leading-relaxed" style={{ color: "#4a5568", fontFamily: "Inter, sans-serif" }}>
+        We&apos;d love to hear from you! Share your thoughts on our products, your experience, or ideas for how we can improve.
+      </p>
+      <textarea
+        value={feedback}
+        onChange={(e) => setFeedback(e.target.value)}
+        placeholder="Tell us what you think..."
+        rows={4}
+        className="w-full rounded-xl p-3 text-[13px] outline-none resize-none"
+        style={{
+          background: "#f8f5f0",
+          border: "1.5px solid rgba(150,121,82,0.2)",
+          color: "#1e232d",
+          fontFamily: "Inter, sans-serif",
+        }}
+      />
+      <button
+        onClick={() => feedback.trim() && setSubmitted(true)}
+        className="w-full py-3 rounded-xl text-[13px] font-semibold tracking-wider uppercase transition-all active:scale-98"
+        style={{
+          background: feedback.trim() ? "linear-gradient(135deg, #967952, #e3c088)" : "rgba(30,35,45,0.08)",
+          color: feedback.trim() ? "#1e232d" : "#8b8b8b",
+        }}
+      >
+        Submit Feedback
+      </button>
+      <p className="text-[10px] text-center" style={{ color: "#b0b0b0" }}>
+        Your feedback may be used as a testimonial with your permission.
+      </p>
     </div>
   );
 }
@@ -142,6 +288,7 @@ const sections: Record<string, { title: string; component: React.ReactNode }> = 
   "Payment Methods": { title: "Payment", component: <PaymentMethods /> },
   "Referral Code": { title: "Referral", component: <ReferralCode /> },
   "Contact Concierge": { title: "Concierge", component: <ContactConcierge /> },
+  "Feedback": { title: "Tell Us What You Think", component: <Feedback /> },
 };
 
 export default function SettingsDrawer({ section, onClose }: SettingsDrawerProps) {

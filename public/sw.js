@@ -1,4 +1,4 @@
-const CACHE_NAME = "couture-club-v2";
+const CACHE_NAME = "couture-club-v3";
 const ASSETS = [
   "/",
   "/images/hero-blanket.png",
@@ -14,6 +14,9 @@ const ASSETS = [
   "/images/collection-cloud.png",
   "/images/collection-plush.png",
   "/images/collection-sorbet.png",
+  "/images/minky-logo.svg",
+  "/images/sandi-hendry.jpeg",
+  "/apple-touch-icon.png",
   "/icon-192.png",
   "/icon-512.png",
 ];

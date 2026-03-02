@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import type { FeedItem } from "@/types";
+import type { Screen } from "@/components/BottomNav";
 
 interface ContentDetailScreenProps {
   item: FeedItem;
   onBack: () => void;
+  onNavigate?: (screen: Screen) => void;
 }
 
-export default function ContentDetailScreen({ item, onBack }: ContentDetailScreenProps) {
+export default function ContentDetailScreen({ item, onBack, onNavigate }: ContentDetailScreenProps) {
   return (
     <div className="w-full pb-24 screen-enter" style={{ background: "#f8f5f0", minHeight: "100%" }}>
       {/* Hero */}
@@ -72,12 +74,13 @@ export default function ContentDetailScreen({ item, onBack }: ContentDetailScree
         <div className="my-6" style={{ height: 1, background: "linear-gradient(90deg, transparent, rgba(150,121,82,0.3), transparent)" }} />
 
         {/* CTA */}
-        <div
-          className="rounded-2xl p-4 flex items-center gap-3"
+        <button
+          className="rounded-2xl p-4 flex items-center gap-3 w-full text-left transition-all active:scale-98"
           style={{
             background: "linear-gradient(135deg, #1e232d, #2e3547)",
             boxShadow: "0 4px 20px rgba(30,35,45,0.2)",
           }}
+          onClick={() => onNavigate?.("shop")}
         >
           <div className="flex-1">
             <p className="text-[11px] tracking-[0.2em] uppercase mb-1" style={{ color: "#967952", fontFamily: "Inter, sans-serif" }}>
@@ -95,7 +98,7 @@ export default function ContentDetailScreen({ item, onBack }: ContentDetailScree
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </div>
-        </div>
+        </button>
       </div>
     </div>
   );

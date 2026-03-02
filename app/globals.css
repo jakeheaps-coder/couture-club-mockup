@@ -133,3 +133,60 @@ body {
   outline: 2px solid #967952;
   outline-offset: 2px;
 }
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Gold confetti celebration */
+@keyframes confettiFall {
+  0% { transform: translateY(-100%) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+.confetti-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confettiFall 2.5s ease-in forwards;
+}
+
+/* Scroll-triggered fade-in */
+@keyframes fadeInOnScroll {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-section {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+
+.fade-in-section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Gold foil texture overlay */
+.gold-foil-texture {
+  position: relative;
+}
+.gold-foil-texture::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(227, 192, 136, 0.15) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(150, 121, 82, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(245, 229, 187, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}

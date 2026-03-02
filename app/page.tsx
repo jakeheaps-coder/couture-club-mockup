@@ -7,14 +7,34 @@ import SplashScreen from "@/components/screens/SplashScreen";
 import HomeScreen from "@/components/screens/HomeScreen";
 import ShopScreen from "@/components/screens/ShopScreen";
 import LoyaltyScreen from "@/components/screens/LoyaltyScreen";
-import MonogramScreen from "@/components/screens/MonogramScreen";
 import HeartScreen from "@/components/screens/HeartScreen";
 import ProfileScreen from "@/components/screens/ProfileScreen";
 import ProductDetailScreen from "@/components/screens/ProductDetailScreen";
 import AboutScreen from "@/components/screens/AboutScreen";
 import ContentDetailScreen from "@/components/screens/ContentDetailScreen";
+import CartScreen from "@/components/screens/CartScreen";
+import CheckoutScreen from "@/components/screens/CheckoutScreen";
+import OrderConfirmationScreen from "@/components/screens/OrderConfirmationScreen";
+import OnboardingScreen from "@/components/screens/OnboardingScreen";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import type { Product, FeedItem } from "@/types";
+import SettingsDrawer from "@/components/SettingsDrawer";
+import type { Product, FeedItem, CartItem, Size } from "@/types";
+
+const CART_STORAGE_KEY = "couture-club-cart";
+
+function loadCartFromStorage(): CartItem[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const stored = localStorage.getItem(CART_STORAGE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch {
+    // ignore parse errors
+  }
+  return [];
+}
 
 function useIsStandalone() {
   const [standalone, setStandalone] = useState(false);
@@ -34,10 +54,76 @@ export default function Home() {
   const [transitioning, setTransitioning] = useState(false);
   const isStandalone = useIsStandalone();
 
-  // Persistent countdown end-time for Vault — survives screen remounts
+  // ── Cart state with localStorage persistence ────────────
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [orderConfirmItems, setOrderConfirmItems] = useState<CartItem[]>([]);
+  const cartInitialized = useRef(false);
+
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    if (!cartInitialized.current) {
+      const stored = loadCartFromStorage();
+      if (stored.length > 0) setCart(stored);
+      cartInitialized.current = true;
+    }
+  }, []);
+
+  // Persist cart to localStorage on every change
+  useEffect(() => {
+    if (cartInitialized.current) {
+      try {
+        localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cart));
+      } catch {
+        // ignore storage quota errors
+      }
+    }
+  }, [cart]);
+
+  const addToCart = useCallback((product: Product, size: Size, quantity: number) => {
+    const variant = product.variants.find((v) => v.size === size);
+    const price = variant?.price ?? product.priceRange.min;
+    setCart((prev) => {
+      const existingIdx = prev.findIndex(
+        (i) => i.productId === product.id && i.size === size,
+      );
+      if (existingIdx >= 0) {
+        return prev.map((item, idx) =>
+          idx === existingIdx ? { ...item, quantity: Math.min(10, item.quantity + quantity) } : item,
+        );
+      }
+      return [
+        ...prev,
+        {
+          id: `cart-${Date.now()}`,
+          productId: product.id,
+          title: product.title,
+          size,
+          quantity,
+          price,
+          colorHex: product.colorHex,
+          accentHex: product.accentHex,
+        },
+      ];
+    });
+  }, []);
+
+  const updateCartQuantity = useCallback((id: string, quantity: number) => {
+    setCart((prev) => prev.map((item) => (item.id === id ? { ...item, quantity } : item)));
+  }, []);
+
+  const removeFromCart = useCallback((id: string) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
+
+  // ── Overlay state (rendered above BottomNav) ──────────────
+  const [drawerSection, setDrawerSection] = useState<string | null>(null);
+
+  // ── Vault countdown ───────────────────────────────────────
   const vaultEndTime = useRef(Date.now() + (3 * 3600 + 42 * 60 + 17) * 1000);
 
-  // Scroll position memory
+  // ── Scroll position memory ────────────────────────────────
   const scrollPositions = useRef<Record<string, number>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -55,9 +141,11 @@ export default function Home() {
     });
   }, []);
 
+  // ── Navigation ────────────────────────────────────────────
   const handleNavigate = useCallback(
     (next: Screen) => {
       saveScroll();
+      setDrawerSection(null);
       setTransitioning(true);
       setTimeout(() => {
         setPreviousScreen(screen);
@@ -94,16 +182,55 @@ export default function Home() {
     restoreScroll(previousScreen);
   }, [previousScreen, restoreScroll]);
 
+  const handleOpenCart = useCallback(() => {
+    saveScroll();
+    setPreviousScreen(screen);
+    setScreen("cart");
+  }, [screen, saveScroll]);
+
+  // ── Checkout flow ─────────────────────────────────────────
+  const handleCheckout = useCallback(() => {
+    saveScroll();
+    setPreviousScreen("cart");
+    setScreen("checkout");
+  }, [saveScroll]);
+
+  const handlePlaceOrder = useCallback(() => {
+    // Save current cart for confirmation screen before clearing
+    setOrderConfirmItems([...cart]);
+    setCart([]);
+    setScreen("order-confirmation");
+  }, [cart]);
+
+  // ── Screen renderer ───────────────────────────────────────
   const renderScreen = () => {
     switch (screen) {
       case "splash":
-        return <SplashScreen onComplete={() => setScreen("home")} />;
+        return (
+          <SplashScreen
+            onComplete={() => {
+              const onboarded = typeof window !== "undefined" && localStorage.getItem("couture-club-onboarded");
+              setScreen(onboarded ? "home" : "onboarding");
+            }}
+          />
+        );
+      case "onboarding":
+        return (
+          <OnboardingScreen
+            onComplete={() => {
+              if (typeof window !== "undefined") localStorage.setItem("couture-club-onboarded", "true");
+              setScreen("home");
+            }}
+          />
+        );
       case "home":
         return (
           <HomeScreen
             onNavigate={handleNavigate}
             onSelectProduct={handleSelectProduct}
             onSelectContent={handleSelectContent}
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
           />
         );
       case "shop":
@@ -111,36 +238,77 @@ export default function Home() {
           <ShopScreen
             onSelectProduct={handleSelectProduct}
             vaultEndTime={vaultEndTime.current}
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
           />
         );
       case "loyalty":
-        return <LoyaltyScreen />;
-      case "studio":
-        return <MonogramScreen />;
-      case "heart":
-        return <HeartScreen />;
-      case "profile":
-        return <ProfileScreen onNavigate={handleNavigate} />;
-      case "product-detail":
-        return selectedProduct ? (
-          <ProductDetailScreen product={selectedProduct} onBack={handleBack} />
-        ) : (
-          <HomeScreen
-            onNavigate={handleNavigate}
-            onSelectProduct={handleSelectProduct}
-            onSelectContent={handleSelectContent}
+        return (
+          <LoyaltyScreen
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
           />
         );
+      case "heart":
+        return (
+          <HeartScreen
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
+          />
+        );
+      case "profile":
+        return (
+          <ProfileScreen
+            onNavigate={handleNavigate}
+            onOpenDrawer={setDrawerSection}
+            onSelectProduct={handleSelectProduct}
+          />
+        );
+      case "product-detail":
+        return selectedProduct ? (
+          <ProductDetailScreen
+            product={selectedProduct}
+            onBack={handleBack}
+            onAddToCart={addToCart}
+            onSelectProduct={handleSelectProduct}
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
+          />
+        ) : null;
       case "about":
         return <AboutScreen onBack={handleBack} />;
       case "content-detail":
         return selectedContent ? (
-          <ContentDetailScreen item={selectedContent} onBack={handleBack} />
-        ) : (
-          <HomeScreen
+          <ContentDetailScreen
+            item={selectedContent}
+            onBack={handleBack}
             onNavigate={handleNavigate}
-            onSelectProduct={handleSelectProduct}
-            onSelectContent={handleSelectContent}
+          />
+        ) : null;
+      case "cart":
+        return (
+          <CartScreen
+            items={cart}
+            onUpdateQuantity={updateCartQuantity}
+            onRemoveItem={removeFromCart}
+            onBack={handleBack}
+            onContinueShopping={() => handleNavigate("shop")}
+            onCheckout={handleCheckout}
+          />
+        );
+      case "checkout":
+        return (
+          <CheckoutScreen
+            items={cart}
+            onBack={handleBack}
+            onPlaceOrder={handlePlaceOrder}
+          />
+        );
+      case "order-confirmation":
+        return (
+          <OrderConfirmationScreen
+            items={orderConfirmItems}
+            onNavigate={handleNavigate}
           />
         );
       default:
@@ -149,6 +317,8 @@ export default function Home() {
             onNavigate={handleNavigate}
             onSelectProduct={handleSelectProduct}
             onSelectContent={handleSelectContent}
+            cartCount={cartCount}
+            onOpenCart={handleOpenCart}
           />
         );
     }
@@ -172,6 +342,11 @@ export default function Home() {
         </ErrorBoundary>
       </div>
       <BottomNav active={screen} onNavigate={handleNavigate} />
+
+      {/* Overlays — rendered ABOVE BottomNav, outside scroll container */}
+      {drawerSection && (
+        <SettingsDrawer section={drawerSection} onClose={() => setDrawerSection(null)} />
+      )}
     </>
   );
 

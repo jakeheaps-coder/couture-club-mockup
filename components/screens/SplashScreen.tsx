@@ -36,26 +36,9 @@ export default function SplashScreen({ onComplete }: SplashScreenProps) {
 
       {/* Main content */}
       <div className="flex flex-col items-center gap-5 animate-fade-in">
-        {/* MC monogram */}
-        <div
-          className="w-20 h-20 rounded-2xl flex items-center justify-center mb-2"
-          style={{
-            background: "linear-gradient(135deg, #967952 0%, #e3c088 50%, #967952 100%)",
-            boxShadow: "0 8px 32px rgba(227,192,136,0.3)",
-          }}
-        >
-          <span
-            className="text-[#1e232d] font-bold"
-            style={{
-              fontFamily: "Cormorant Garamond, Georgia, serif",
-              fontSize: 34,
-              fontWeight: 700,
-              letterSpacing: "-0.5px",
-              lineHeight: 1,
-            }}
-          >
-            MC
-          </span>
+        {/* Minky Couture logo */}
+        <div className="mb-2" style={{ filter: "brightness(2)" }}>
+          <Image src="/images/minky-logo.svg" alt="Minky Couture" width={180} height={48} style={{ objectFit: "contain" }} priority />
         </div>
 
         {/* Brand name */}
